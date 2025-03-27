@@ -32,7 +32,7 @@ func TestAPI_postsHandler(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, path, nil)
 	rr := httptest.NewRecorder()
 
-	api.r.ServeHTTP(rr, req)
+	api.Router.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
 		t.Errorf("want status code %v, got status code %v", http.StatusOK, rr.Code)
 	}

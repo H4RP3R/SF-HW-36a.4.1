@@ -11,14 +11,14 @@ import (
 )
 
 type API struct {
-	DB storage.Storage
-	r  *mux.Router
+	DB     storage.Storage
+	Router *mux.Router
 }
 
 func New(db storage.Storage) *API {
 	api := API{
-		DB: db,
-		r:  mux.NewRouter(),
+		DB:     db,
+		Router: mux.NewRouter(),
 	}
 	api.endpoints()
 
@@ -26,12 +26,8 @@ func New(db storage.Storage) *API {
 }
 
 func (api *API) endpoints() {
-	api.r.Use(api.headerMiddleware)
-	api.r.HandleFunc("/news/{n}", api.postsHandler).Methods(http.MethodGet)
-}
-
-func (api *API) Router() *mux.Router {
-	return api.r
+	api.Router.Use(api.headerMiddleware)
+	api.Router.HandleFunc("/news/{n}", api.postsHandler).Methods(http.MethodGet)
 }
 
 func (api *API) postsHandler(w http.ResponseWriter, r *http.Request) {
