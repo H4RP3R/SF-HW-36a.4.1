@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"news/pkg/storage"
 )
 
@@ -17,6 +19,10 @@ func TestDB_AddPost(t *testing.T) {
 	testPosts, err := LoadTestPosts(testPostsPath)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	for i, post := range testPosts {
+		testPosts[i].ID = uuid.NewV5(uuid.NamespaceURL, post.Link)
 	}
 
 	for _, post := range testPosts {
@@ -42,12 +48,12 @@ func TestDB_AddPosts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cnt, err := db.AddPosts(testPosts)
+	err = db.AddPosts(testPosts)
 	if err != nil {
 		t.Errorf("unexpected error while adding posts: %v", err)
 	}
-	if cnt != len(testPosts) {
-		t.Errorf("want posts count %d, got posts count %d", len(testPosts), cnt)
+	if len(db.posts) != len(testPosts) {
+		t.Errorf("want posts count %d, got posts count %d", len(testPosts), len(db.posts))
 	}
 }
 
@@ -56,18 +62,21 @@ func TestDB_Posts(t *testing.T) {
 
 	// Test posts from oldest to newest.
 	testPosts := []storage.Post{
-		{ID: 1, Title: "First Post", Content: "Content 1", Published: time.Date(2024, 10, 8, 22, 0, 0, 0, time.UTC), Link: "https://example.com/1"},
-		{ID: 2, Title: "Second Post", Content: "Content 2", Published: time.Date(2024, 10, 8, 22, 2, 0, 0, time.UTC), Link: "https://example.com/2"},
-		{ID: 3, Title: "Third Post", Content: "Content 3", Published: time.Date(2025, 3, 13, 5, 0, 10, 0, time.UTC), Link: "https://example.com/3"},
-		{ID: 4, Title: "Fourth Post", Content: "Content 4", Published: time.Date(2025, 3, 13, 5, 0, 15, 0, time.UTC), Link: "https://example.com/4"},
-		{ID: 5, Title: "Fifth Post", Content: "Content 5", Published: time.Date(2025, 8, 0, 0, 0, 0, 0, time.UTC), Link: "https://example.com/5"},
-		{ID: 6, Title: "Sixth Post", Content: "Content 6", Published: time.Date(2025, 8, 1, 0, 0, 0, 0, time.UTC), Link: "https://example.com/6"},
-		{ID: 7, Title: "Seventh Post", Content: "Content 7", Published: time.Date(2025, 9, 28, 0, 0, 0, 0, time.UTC), Link: "https://example.com/7"},
+		{Title: "First Post", Content: "Content 1", Published: time.Date(2024, 10, 8, 22, 0, 0, 0, time.UTC), Link: "https://example.com/1"},
+		{Title: "Second Post", Content: "Content 2", Published: time.Date(2024, 10, 8, 22, 2, 0, 0, time.UTC), Link: "https://example.com/2"},
+		{Title: "Third Post", Content: "Content 3", Published: time.Date(2025, 3, 13, 5, 0, 10, 0, time.UTC), Link: "https://example.com/3"},
+		{Title: "Fourth Post", Content: "Content 4", Published: time.Date(2025, 3, 13, 5, 0, 15, 0, time.UTC), Link: "https://example.com/4"},
+		{Title: "Fifth Post", Content: "Content 5", Published: time.Date(2025, 8, 0, 0, 0, 0, 0, time.UTC), Link: "https://example.com/5"},
+		{Title: "Sixth Post", Content: "Content 6", Published: time.Date(2025, 8, 1, 0, 0, 0, 0, time.UTC), Link: "https://example.com/6"},
+		{Title: "Seventh Post", Content: "Content 7", Published: time.Date(2025, 9, 28, 0, 0, 0, 0, time.UTC), Link: "https://example.com/7"},
 	}
 
-	_, err := db.AddPosts(testPosts)
-	if err != nil {
-		t.Fatalf("unexpected error while adding posts: %v", err)
+	var err error
+	for i, post := range testPosts {
+		testPosts[i].ID, err = db.AddPost(post)
+		if err != nil {
+			t.Fatalf("unexpected error while adding posts: %v", err)
+		}
 	}
 
 	tests := []struct {

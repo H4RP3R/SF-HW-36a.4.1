@@ -5,42 +5,40 @@ import (
 	"sync"
 
 	"news/pkg/storage"
+
+	"github.com/gofrs/uuid"
 )
 
 type DB struct {
 	mu    sync.Mutex
-	posts map[int]storage.Post
-	cntID int
+	posts map[uuid.UUID]storage.Post
 }
 
 func New() *DB {
 	db := DB{
-		posts: make(map[int]storage.Post),
-		cntID: 1,
+		posts: make(map[uuid.UUID]storage.Post),
 	}
 
 	return &db
 }
 
-func (db *DB) AddPost(post storage.Post) (id int, err error) {
+func (db *DB) AddPost(post storage.Post) (id uuid.UUID, err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	id = db.cntID
-	db.posts[id] = post
-	db.cntID++
+	post.ID = uuid.NewV5(uuid.NamespaceURL, post.Link)
+	db.posts[post.ID] = post
 
-	return
+	return post.ID, nil
 }
 
-func (db *DB) AddPosts(posts []storage.Post) (count int, err error) {
+func (db *DB) AddPosts(posts []storage.Post) (err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
 	for _, post := range posts {
-		db.posts[db.cntID] = post
-		db.cntID++
-		count++
+		post.ID = uuid.NewV5(uuid.NamespaceURL, post.Link)
+		db.posts[post.ID] = post
 	}
 
 	return
