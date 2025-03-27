@@ -14,15 +14,9 @@ import (
 	"news/pkg/storage/memdb"
 )
 
-type server struct {
-	api *api.API
-}
-
 func main() {
 	var (
-		srv server
 		db  storage.Storage
-
 		dev bool
 	)
 
@@ -48,7 +42,7 @@ func main() {
 		log.Fatalf("unable to load RSS parser config: %v", err)
 	}
 
-	srv.api = api.New(db)
+	api := api.New(db)
 	parser := rss.NewParser(*conf)
 
 	var wg sync.WaitGroup
@@ -64,7 +58,7 @@ func main() {
 			if msg.Err != nil {
 				log.Warnf("Error while parsing %s: %v", msg.Source, msg.Err)
 			} else {
-				err := srv.api.DB.AddPosts(msg.Data)
+				err := api.DB.AddPosts(msg.Data)
 				if err != nil {
 					log.Warnf("Error while adding posts from %s to DB: %v", msg.Source, msg.Err)
 				} else {
@@ -97,6 +91,6 @@ func main() {
 	}()
 
 	// TODO: graceful shutdown.
-	http.ListenAndServe(":8080", srv.api.Router())
+	http.ListenAndServe(":8080", api.Router)
 	wg.Wait()
 }
