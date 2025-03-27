@@ -1,9 +1,13 @@
 package storage
 
-import "time"
+import (
+	"time"
+
+	"github.com/gofrs/uuid"
+)
 
 type Post struct {
-	ID        int       `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Published time.Time `json:"published"`
@@ -11,7 +15,7 @@ type Post struct {
 }
 
 type Storage interface {
-	AddPost(post Post) (id int, err error)
-	AddPosts(posts []Post) (count int, err error)
+	AddPost(post Post) (id uuid.UUID, err error)
+	AddPosts(posts []Post) (err error)
 	Posts(n int) (posts []Post, err error)
 }

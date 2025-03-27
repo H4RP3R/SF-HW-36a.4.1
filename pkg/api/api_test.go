@@ -6,9 +6,10 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"testing"
+
 	"news/pkg/storage"
 	"news/pkg/storage/memdb"
-	"testing"
 )
 
 const testPostsPath = "../../test_data/post_examples.json"
@@ -21,7 +22,7 @@ func TestAPI_postsHandler(t *testing.T) {
 		t.Fatalf("unexpected error while loading test posts: %v", err)
 	}
 
-	_, err = db.AddPosts(testPosts)
+	err = db.AddPosts(testPosts)
 	if err != nil {
 		t.Fatalf("unexpected error while adding posts: %v", err)
 	}

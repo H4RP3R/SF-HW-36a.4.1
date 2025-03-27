@@ -11,13 +11,13 @@ import (
 )
 
 type API struct {
-	db storage.Storage
+	DB storage.Storage
 	r  *mux.Router
 }
 
 func New(db storage.Storage) *API {
 	api := API{
-		db: db,
+		DB: db,
 		r:  mux.NewRouter(),
 	}
 	api.endpoints()
@@ -42,7 +42,7 @@ func (api *API) postsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := api.db.Posts(n)
+	posts, err := api.DB.Posts(n)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
