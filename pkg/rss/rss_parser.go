@@ -94,13 +94,20 @@ func NewParser(conf config) *Parser {
 	return &p
 }
 
-func convertToUTC(rssTime string) (time.Time, error) {
-	// Parse using RFC1123 format (the standard RSS format)
-	t, err := time.Parse(time.RFC1123, rssTime)
-	if err != nil {
-		return time.Time{}, err
-	}
+var rssTimeFormats = []string{
+	"Mon, 2 Jan 2006 15:04:05 +0000", // Custom for single digit date.
+	time.RFC1123,                     // "Mon, 02 Jan 2006 15:04:05 MST"
+	time.RFC1123Z,                    // "Mon, 02 Jan 2006 15:04:05 -0700"
+	time.RFC822,                      // "02 Jan 06 15:04 MST"
+	time.RFC822Z,                     // "02 Jan 06 15:04 -0700"
+}
 
-	// Explicitly convert to UTC even if already GMT
-	return t.UTC(), nil
+func convertToUTC(rssTime string) (t time.Time, err error) {
+	for _, format := range rssTimeFormats {
+		t, err = time.Parse(format, rssTime)
+		if err == nil {
+			return t.UTC(), nil
+		}
+	}
+	return
 }
