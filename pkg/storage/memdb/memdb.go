@@ -54,7 +54,7 @@ func (db *DB) Posts(n int) (posts []storage.Post, err error) {
 	}
 
 	sort.Slice(posts, func(i, j int) bool {
-		return posts[i].Published.Before(posts[j].Published)
+		return posts[i].Published.After(posts[j].Published)
 	})
 
 	if n > len(posts) {

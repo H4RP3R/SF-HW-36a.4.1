@@ -60,15 +60,15 @@ func TestDB_AddPosts(t *testing.T) {
 func TestDB_Posts(t *testing.T) {
 	db := New()
 
-	// Test posts from oldest to newest.
+	// Test posts from newest to oldest.
 	testPosts := []storage.Post{
-		{Title: "First Post", Content: "Content 1", Published: time.Date(2024, 10, 8, 22, 0, 0, 0, time.UTC), Link: "https://example.com/1"},
-		{Title: "Second Post", Content: "Content 2", Published: time.Date(2024, 10, 8, 22, 2, 0, 0, time.UTC), Link: "https://example.com/2"},
-		{Title: "Third Post", Content: "Content 3", Published: time.Date(2025, 3, 13, 5, 0, 10, 0, time.UTC), Link: "https://example.com/3"},
-		{Title: "Fourth Post", Content: "Content 4", Published: time.Date(2025, 3, 13, 5, 0, 15, 0, time.UTC), Link: "https://example.com/4"},
-		{Title: "Fifth Post", Content: "Content 5", Published: time.Date(2025, 8, 0, 0, 0, 0, 0, time.UTC), Link: "https://example.com/5"},
-		{Title: "Sixth Post", Content: "Content 6", Published: time.Date(2025, 8, 1, 0, 0, 0, 0, time.UTC), Link: "https://example.com/6"},
 		{Title: "Seventh Post", Content: "Content 7", Published: time.Date(2025, 9, 28, 0, 0, 0, 0, time.UTC), Link: "https://example.com/7"},
+		{Title: "Sixth Post", Content: "Content 6", Published: time.Date(2025, 8, 1, 0, 0, 0, 0, time.UTC), Link: "https://example.com/6"},
+		{Title: "Fifth Post", Content: "Content 5", Published: time.Date(2025, 8, 0, 0, 0, 0, 0, time.UTC), Link: "https://example.com/5"},
+		{Title: "Fourth Post", Content: "Content 4", Published: time.Date(2025, 3, 13, 5, 0, 15, 0, time.UTC), Link: "https://example.com/4"},
+		{Title: "Third Post", Content: "Content 3", Published: time.Date(2025, 3, 13, 5, 0, 10, 0, time.UTC), Link: "https://example.com/3"},
+		{Title: "Second Post", Content: "Content 2", Published: time.Date(2024, 10, 8, 22, 2, 0, 0, time.UTC), Link: "https://example.com/2"},
+		{Title: "First Post", Content: "Content 1", Published: time.Date(2024, 10, 8, 22, 0, 0, 0, time.UTC), Link: "https://example.com/1"},
 	}
 
 	var err error
