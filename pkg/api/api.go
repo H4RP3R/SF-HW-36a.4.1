@@ -30,6 +30,8 @@ func (api *API) endpoints() {
 	api.Router.HandleFunc("/news/{n}", api.postsHandler).Methods(http.MethodGet)
 }
 
+// postsHandler handles GET requests to /news/{n} and returns n latest posts from
+// the underlying storage in JSON format.
 func (api *API) postsHandler(w http.ResponseWriter, r *http.Request) {
 	nStr := mux.Vars(r)["n"]
 	n, err := strconv.Atoi(nStr)

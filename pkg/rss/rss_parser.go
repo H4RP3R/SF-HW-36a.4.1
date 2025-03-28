@@ -41,6 +41,8 @@ type Parser struct {
 	Delay time.Duration
 }
 
+// handleFeed processes a single RSS feed, converting its items to storage.Post
+// objects and returning them as a slice. Converts the post's Published field to UTC.
 func (p *Parser) handleFeed(feed *gofeed.Feed) ([]storage.Post, error) {
 	var posts []storage.Post
 
@@ -58,6 +60,7 @@ func (p *Parser) handleFeed(feed *gofeed.Feed) ([]storage.Post, error) {
 	return posts, nil
 }
 
+// Run runs the parser for each URL in a separate goroutine.
 func (p *Parser) Run(msgChan chan<- ParserMsg) {
 	for _, url := range p.Urls {
 		go func(url string) {

@@ -9,6 +9,8 @@ import (
 	"news/pkg/storage"
 )
 
+// LoadTestPosts loads test posts from a JSON file at the given path, converting
+// their published dates to UTC and sorting them in descending order by date.
 func LoadTestPosts(path string) ([]storage.Post, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {

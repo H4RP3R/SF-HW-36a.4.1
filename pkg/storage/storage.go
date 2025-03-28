@@ -21,7 +21,12 @@ type Post struct {
 }
 
 type Storage interface {
+	// AddPost adds a single post to the storage and returns the post ID and an error if any occurs.
 	AddPost(post Post) (id uuid.UUID, err error)
+
+	// AddPosts adds multiple posts to the storage and returns an error if any occurs.
 	AddPosts(posts []Post) (err error)
+
+	// Posts retrieves the 'n' newest posts from the storage and an error if any occurs.
 	Posts(n int) (posts []Post, err error)
 }

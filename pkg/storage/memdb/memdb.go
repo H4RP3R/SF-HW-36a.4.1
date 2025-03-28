@@ -44,7 +44,6 @@ func (db *Store) AddPosts(posts []storage.Post) (err error) {
 	return
 }
 
-// Posts returns the n latest posts from the DB and an error if one occurs.
 func (db *Store) Posts(n int) (posts []storage.Post, err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
