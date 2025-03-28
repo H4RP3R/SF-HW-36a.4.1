@@ -107,7 +107,7 @@ func (s *Store) Posts(n int) (posts []storage.Post, err error) {
 		SELECT id, title, content, published, link
 		FROM posts
 		ORDER BY published DESC
-		Limit $1
+		LIMIT $1
 	`,
 		n,
 	)
