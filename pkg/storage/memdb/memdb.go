@@ -9,20 +9,20 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type DB struct {
+type Store struct {
 	mu    sync.Mutex
 	posts map[uuid.UUID]storage.Post
 }
 
-func New() *DB {
-	db := DB{
+func New() *Store {
+	db := Store{
 		posts: make(map[uuid.UUID]storage.Post),
 	}
 
 	return &db
 }
 
-func (db *DB) AddPost(post storage.Post) (id uuid.UUID, err error) {
+func (db *Store) AddPost(post storage.Post) (id uuid.UUID, err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -32,7 +32,7 @@ func (db *DB) AddPost(post storage.Post) (id uuid.UUID, err error) {
 	return post.ID, nil
 }
 
-func (db *DB) AddPosts(posts []storage.Post) (err error) {
+func (db *Store) AddPosts(posts []storage.Post) (err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -45,7 +45,7 @@ func (db *DB) AddPosts(posts []storage.Post) (err error) {
 }
 
 // Posts returns the n latest posts from the DB and an error if one occurs.
-func (db *DB) Posts(n int) (posts []storage.Post, err error) {
+func (db *Store) Posts(n int) (posts []storage.Post, err error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 

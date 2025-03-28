@@ -1,9 +1,15 @@
 package storage
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
+)
+
+var (
+	ErrConnectDB       = fmt.Errorf("unable to establish DB connection")
+	ErrDBNotResponding = fmt.Errorf("DB not responding")
 )
 
 type Post struct {

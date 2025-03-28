@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -12,11 +14,12 @@ import (
 	"news/pkg/rss"
 	"news/pkg/storage"
 	"news/pkg/storage/memdb"
+	"news/pkg/storage/postgres"
 )
 
 func main() {
 	var (
-		db  storage.Storage
+		sdb storage.Storage
 		dev bool
 	)
 
@@ -30,11 +33,29 @@ func main() {
 
 	switch dev {
 	case false:
-		log.Error("Not implemented")
-		return
+		conf := postgres.Config{
+			User:     "postgres",
+			Password: os.Getenv("POSTGRES_PASSWORD"),
+			Host:     "localhost",
+			Port:     "5433",
+			DBName:   "news",
+		}
+		db, err := postgres.New(conf.ConString())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+
+		err = db.Ping()
+		if err != nil {
+			log.Fatal(fmt.Errorf("%w: %v", storage.ErrDBNotResponding, err))
+		}
+		log.Infof("connected to postgres: %s", conf)
+		sdb = db
+
 	case true:
 		log.Info("Run server with in memory DB")
-		db = memdb.New()
+		sdb = memdb.New()
 	}
 
 	conf, err := rss.LoadConf("cmd/server/config.json")
@@ -42,7 +63,7 @@ func main() {
 		log.Fatalf("unable to load RSS parser config: %v", err)
 	}
 
-	api := api.New(db)
+	api := api.New(sdb)
 	parser := rss.NewParser(*conf)
 
 	var wg sync.WaitGroup
@@ -60,7 +81,7 @@ func main() {
 			} else {
 				err := api.DB.AddPosts(msg.Data)
 				if err != nil {
-					log.Warnf("Error while adding posts from %s to DB: %v", msg.Source, msg.Err)
+					log.Warnf("Error while adding posts from %s to DB: %v", msg.Source, err)
 				} else {
 					log.Infof("DB updated with posts from %s", msg.Source)
 				}

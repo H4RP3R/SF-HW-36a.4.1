@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 
 	"news/pkg/storage"
 )
@@ -20,6 +21,14 @@ func LoadTestPosts(path string) ([]storage.Post, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to unmarshal test data: %w", err)
 	}
+
+	for i := 0; i < len(posts); i++ {
+		posts[i].Published = posts[i].Published.UTC()
+	}
+
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].Published.After(posts[j].Published)
+	})
 
 	return posts, nil
 }

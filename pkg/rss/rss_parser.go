@@ -45,7 +45,7 @@ func (p *Parser) handleFeed(feed *gofeed.Feed) ([]storage.Post, error) {
 	var posts []storage.Post
 
 	for _, item := range feed.Items {
-		publishedUTC, _ := convertToUTC(item.Published)
+		publishedUTC, _ := ConvertToUTC(item.Published)
 		post := storage.Post{
 			Title:     item.Title,
 			Content:   item.Description,
@@ -92,22 +92,4 @@ func NewParser(conf config) *Parser {
 	}
 
 	return &p
-}
-
-var rssTimeFormats = []string{
-	"Mon, 2 Jan 2006 15:04:05 +0000", // Custom for single digit date.
-	time.RFC1123,                     // "Mon, 02 Jan 2006 15:04:05 MST"
-	time.RFC1123Z,                    // "Mon, 02 Jan 2006 15:04:05 -0700"
-	time.RFC822,                      // "02 Jan 06 15:04 MST"
-	time.RFC822Z,                     // "02 Jan 06 15:04 -0700"
-}
-
-func convertToUTC(rssTime string) (t time.Time, err error) {
-	for _, format := range rssTimeFormats {
-		t, err = time.Parse(format, rssTime)
-		if err == nil {
-			return t.UTC(), nil
-		}
-	}
-	return
 }
