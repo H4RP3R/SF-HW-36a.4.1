@@ -1,3 +1,6 @@
+#!/bin/bash
+mkdir -p db_init
+cp schema.sql db_init/init.sql
 docker run -d --rm \
     -p 5432:5432 \
     --name news_postgres_db \
