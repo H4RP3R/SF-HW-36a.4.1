@@ -44,6 +44,8 @@ export POSTGRES_HOST='localhost'
 export POSTGRES_PORT=5432
 chmod +x cmd/run_postgres.sh
 ./cmd/run_postgres.sh
+# Check if the Postgres container is ready to accept connections.
+while ! pg_isready -h localhost -p 5432; do sleep 1; done
 go test -v -cover ./...
 ```
 
@@ -74,6 +76,11 @@ go run cmd/server/main.go -dev
     ```bash
     chmod +x cmd/run_postgres.sh
     ./cmd/run_postgres.sh
+    ```
+
+3. Запустить сервер.
+
+    ```bash
     go run cmd/server/main.go
     ```
 
