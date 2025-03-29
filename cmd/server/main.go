@@ -36,8 +36,8 @@ func main() {
 		conf := postgres.Config{
 			User:     "postgres",
 			Password: os.Getenv("POSTGRES_PASSWORD"),
-			Host:     "localhost",
-			Port:     "5433",
+			Host:     os.Getenv("POSTGRES_HOST"),
+			Port:     os.Getenv("POSTGRES_PORT"),
 			DBName:   "news",
 		}
 		db, err := postgres.New(conf.ConString())

@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./db_init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  back:
+    build:
+      context: .
+      dockerfile: DockerfileBack
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - 8088:8088
+    depends_on:
+      db:
+        condition: service_healthy
+
+  front:
+    build:
+      context: .
+      dockerfile: DockerfileFront
+    ports:
+      - 8080:8080
+    environment:
+      - STATIC_URL=back
+    depends_on:
+      - back
