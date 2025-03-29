@@ -12,7 +12,8 @@ import (
 )
 
 const testPostsPath = "../../../test_data/post_examples.json"
-const defaultPostgresPass = "1234"
+const defaultPostgresPass = "some_pass"
+const defaultPostgresPort = "5432"
 
 func postgresConf() Config {
 	pass := os.Getenv("POSTGRES_PASSWORD")
@@ -20,11 +21,16 @@ func postgresConf() Config {
 		pass = defaultPostgresPass
 	}
 
+	port := os.Getenv("POSTGRES_PORT")
+	if port == "" {
+		port = defaultPostgresPort
+	}
+
 	conf := Config{
 		User:     "postgres",
 		Password: pass,
 		Host:     "localhost",
-		Port:     "5433",
+		Port:     port,
 		DBName:   "news",
 	}
 
