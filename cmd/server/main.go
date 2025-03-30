@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -24,10 +28,12 @@ func main() {
 	)
 
 	var (
-		done    = make(chan struct{})
+		sigChan = make(chan os.Signal, 1)
 		msgChan = make(chan rss.ParserMsg)
+		done    = make(chan struct{})
 	)
 
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	flag.BoolVar(&dev, "dev", false, "Run the server in development mode with in-memory DB.")
 	flag.Parse()
 
@@ -100,18 +106,38 @@ func main() {
 			wg.Done()
 		}()
 
+		parser.Run(msgChan)
 		for {
 			select {
 			case <-done:
 				return
-			default:
+			case <-ticker.C:
 				parser.Run(msgChan)
-				<-ticker.C
 			}
 		}
 	}()
 
-	// TODO: graceful shutdown.
-	http.ListenAndServe(":8088", api.Router)
+	server := &http.Server{
+		Addr:    ":8088",
+		Handler: api.Router,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("HTTP server error: %v", err)
+		}
+		log.Info("Stopped serving new connections")
+	}()
+
+	<-sigChan
+	close(done)
 	wg.Wait()
+
+	shutdownCtx, shutdownRelease := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownRelease()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("HTTP shutdown error: %v", err)
+	}
+	log.Info("Server stopped")
 }
