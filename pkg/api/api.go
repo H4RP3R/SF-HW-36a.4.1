@@ -65,4 +65,6 @@ func (api *API) postsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("[postsHandler] status %v: %v", http.StatusInternalServerError, err)
 		return
 	}
+
+	log.Infof("[postsHandler] response sent to %v", r.RemoteAddr)
 }
