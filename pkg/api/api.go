@@ -2,13 +2,18 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 
 	"news/pkg/storage"
 )
+
+const maxPosts = 1000
 
 type API struct {
 	DB     storage.Storage
@@ -36,19 +41,28 @@ func (api *API) postsHandler(w http.ResponseWriter, r *http.Request) {
 	nStr := mux.Vars(r)["n"]
 	n, err := strconv.Atoi(nStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "400 Bad Request", http.StatusBadRequest)
+		log.Infof("[postsHandler] from %v: %v", r.RemoteAddr, err)
+		return
+	}
+
+	if n < 1 || n > 1000 {
+		http.Error(w, fmt.Sprintf("Invalid news num (1 <= n <= %d)", maxPosts), http.StatusBadRequest)
+		log.Infof("[postsHandler] from %v: %v", r.RemoteAddr, "Invalid news num")
 		return
 	}
 
 	posts, err := api.DB.Posts(n)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+		log.Errorf("[postsHandler] status %v: %v", http.StatusInternalServerError, err)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(posts)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+		log.Errorf("[postsHandler] status %v: %v", http.StatusInternalServerError, err)
 		return
 	}
 }
