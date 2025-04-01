@@ -85,7 +85,7 @@ func main() {
 			if msg.Err != nil {
 				log.Warnf("Error while parsing %s: %v", msg.Source, msg.Err)
 			} else {
-				err := api.DB.AddPosts(msg.Data)
+				err := api.DB.AddPosts(storage.ValidatePosts(msg.Data...))
 				if err != nil {
 					log.Warnf("Error while adding posts from %s to DB: %v", msg.Source, err)
 				} else {

@@ -2,7 +2,10 @@ package storage
 
 import (
 	"fmt"
+	"net/url"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gofrs/uuid"
 )
@@ -29,4 +32,20 @@ type Storage interface {
 
 	// Posts retrieves the 'n' newest posts from the storage and an error if any occurs.
 	Posts(n int) (posts []Post, err error)
+}
+
+// ValidatePosts accepts a slice of posts and removes the invalid ones, i.e., posts containing any empty fields.
+func ValidatePosts(posts ...Post) []Post {
+	var validPosts []Post
+	for _, p := range posts {
+		if p.Title != "" && p.Content != "" && p.Link != "" && !p.Published.IsZero() {
+			if _, err := url.ParseRequestURI(p.Link); err == nil {
+				validPosts = append(validPosts, p)
+			}
+		} else {
+			log.Warnf("Invalidated post: %+v", p)
+		}
+	}
+
+	return validPosts
 }
